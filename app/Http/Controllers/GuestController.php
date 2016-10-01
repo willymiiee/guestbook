@@ -15,8 +15,12 @@ class GuestController extends Controller
      */
     public function index()
     {
+        $page = request()->get('page') > 1 ? request()->get('page') - 1 : 0;
+
         try {
-            $guests = Guest::all();
+            $guests = Guest::skip($page * 10)
+                            ->take(10)
+                            ->get();
         } catch (Exception $e) {
             return response()->json([
                 'errors'    => $e->getMessage()
