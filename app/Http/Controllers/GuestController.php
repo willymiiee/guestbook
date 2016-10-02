@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Models\Guest;
+use Carbon\Carbon;
 
 class GuestController extends Controller
 {
@@ -21,6 +22,11 @@ class GuestController extends Controller
             $guests = Guest::skip($page * 10)
                             ->take(10)
                             ->get();
+            
+            foreach ($guests as $key => $val) {
+                $guests[$key]['created_date'] = $val['created_at']->format('d M Y H:i');
+            }
+
         } catch (Exception $e) {
             return response()->json([
                 'errors'    => $e->getMessage()
@@ -82,7 +88,14 @@ class GuestController extends Controller
             ]);
         }
 
-        return response()->json($guest);
+        if ($guest) {
+            $guest['created_date'] = $guest['created_at']->format('d M Y H:i');
+            return response()->json($guest);
+        } else {
+            return response()->json([
+                'errors'    => 'Tidak dapat menemukan data.'
+            ]);
+        }
     }
 
     /**
@@ -119,12 +132,18 @@ class GuestController extends Controller
             ]);
         }
 
-        $guest->name = request()->get('name');
-        $guest->save();
+        if ($guest) {
+            $guest->name = request()->get('name');
+            $guest->save();
 
-        return response()->json([
-            'message'    => 'Data berhasil diupdate.'
-        ]);
+            return response()->json([
+                'message'    => 'Data berhasil diupdate.'
+            ]);
+        } else {
+            return response()->json([
+                'errors'    => 'Tidak dapat menemukan data.'
+            ]);
+        }
     }
 
     /**
@@ -143,10 +162,16 @@ class GuestController extends Controller
             ]);
         }
 
-        $guest->delete();
+        if ($guest) {
+            $guest->delete();
 
-        return response()->json([
-            'message'    => 'Data berhasil dihapus.'
-        ]);
+            return response()->json([
+                'message'    => 'Data berhasil dihapus.'
+            ]);
+        } else {
+            return response()->json([
+                'errors'    => 'Tidak dapat menemukan data.'
+            ]);
+        }
     }
 }
