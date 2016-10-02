@@ -19,7 +19,8 @@ class GuestController extends Controller
         $page = request()->get('page') > 1 ? request()->get('page') - 1 : 0;
 
         try {
-            $guests = Guest::skip($page * 10)
+            $guests = Guest::orderBy('id', 'desc')
+                            ->skip($page * 10)
                             ->take(10)
                             ->get();
             
